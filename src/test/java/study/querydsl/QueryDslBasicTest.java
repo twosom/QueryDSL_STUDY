@@ -613,14 +613,18 @@ public class QueryDslBasicTest {
 
 
     /**
-     * 생성자는 이름이 아니라 타입을 보고 들어가기 때문에 as를 굳이 안써도 된다.
+     * 생성자는 이름이 아니라 타입을 보고 들어가기 때문에 as를 굳이 안써도 된다.<br/>
+     * 그러므로 subQuery 사용 시에 ExpressionUtils.as 메소드를 사용하지 않고 바로<br/>
+     * JPAExpressions 를 사용할 수 있다.
      */
     @Test
     void findUserDtoConstructor() {
+        QMember memberSub = new QMember("memberSub");
         List<UserDto> result = queryFactory
                 .select(Projections.constructor(UserDto.class,
                         member.username,
-                        member.age))
+                            select(memberSub.age.avg().intValue())
+                            .from(memberSub)))
                 .from(member)
                 .fetch();
 
